@@ -1,15 +1,28 @@
 "use strict";
 
-const cloudWidth = 420;
-const cloudHeight = 270;
-const xStartCloud = 100;
-const yStartCloud = 10;
-const colorMainCloud = `#ffffff`;
-const colorShadowCloud = `rgba(0, 0, 0, 0.7)`;
-const maxHeightGraph = 150;
-const widthColumn = 40;
-const gapColumn = 50;
-const colorYourColumn = `rgba(255, 0, 0, 1)`;
+const CLOUD_WIDTH = 420;
+const CLOUD_HEIGHT = 270;
+const X_START_CLOUD = 100;
+const Y_START_CLOUD = 10;
+const COLOR_MAIN_CLOUD = `#ffffff`;
+const COLOR_SHADOW_CLOUD = `rgba(0, 0, 0, 0.7)`;
+const SHADOW_OFFSET_X = 10;
+const SHADOW_OFFSET_Y = 10;
+const MAX_HEIGHT_GRAPH = 150;
+const WIDTH_COLUMN = 40;
+const GAP_COLUMN = 50;
+const COLOR_YOUR_COLUMN = `rgba(255, 0, 0, 1)`;
+const YOUR_NICKNAME = `Вы`;
+const MESSAGE_LINE1 = `Ура вы победили!`;
+const MESSAGE_LINE2 = `Список результатов:`;
+const xOffsetMessage = 60;
+const yOffsetMessage = 20;
+const FONT_SIZE_MESSAGE = 16;
+const lineHeightMessage = FONT_SIZE_MESSAGE * 1.2;
+const playerNameMarginBottom = 10;
+const playerPointsMarginBottom = 10;
+const playerColumnMarginBottom = playerNameMarginBottom + FONT_SIZE_MESSAGE + 5;
+
 
 const getColorTheirColumnHSL = function () {
   const hue = `240`;
@@ -20,32 +33,40 @@ const getColorTheirColumnHSL = function () {
 };
 
 const renderCloud = function (ctx, xPosition, yPosition, colorCloud, colorShadow) {
-  ctx.fillStyle = colorShadow;
-  ctx.fillRect(xPosition + 10, yPosition + 10, cloudWidth, cloudHeight);
-  ctx.fillStyle = colorCloud;
-  ctx.fillRect(xPosition, yPosition, cloudWidth, cloudHeight);
+  const quantityLayersShadow = 1;
+  for (let j = quantityLayersShadow; j >= 0; j--) {
+    let xPositionLayers = [];
+    xPositionLayers[j] = xPosition + SHADOW_OFFSET_X * j;
+    let yPositionLayers = [];
+    yPositionLayers[j] = yPosition + SHADOW_OFFSET_Y * j;
+    ctx.fillStyle = j === 0 ? colorCloud : colorShadow;
+    ctx.fillRect(xPositionLayers[j], yPositionLayers[j], CLOUD_WIDTH, CLOUD_HEIGHT);
+  }
+};
+
+const renderText = function (ctx, Message, xText, yText) {
+  ctx.fillStyle = `#000`;
+  ctx.font = `${FONT_SIZE_MESSAGE}px PT Mono`;
+  ctx.fillText(Message, xText, yText);
 };
 
 const renderColumn = function (ctx, xPosition, yPosition, namePlayers, timePlayers) {
   const maxTime = Math.max.apply(null, timePlayers);
-  const coefficientRecalcHeight = maxHeightGraph / maxTime;
+  const coefficientRecalcHeight = MAX_HEIGHT_GRAPH / maxTime;
   const heightColumns = timePlayers.map(function (timePlayer) {
     return Math.round(timePlayer * coefficientRecalcHeight);
   });
   for (let i = 0; i < namePlayers.length; i++) {
-    ctx.fillStyle = `#000`;
-    ctx.fillText(namePlayers[i], xPosition + gapColumn + (widthColumn + gapColumn) * i, yPosition + cloudHeight - 10);
-    ctx.fillText(Math.round(timePlayers[i]), xPosition + gapColumn + (widthColumn + gapColumn) * i, yPosition + cloudHeight - heightColumns[i] - 40);
-    ctx.fillStyle = namePlayers[i] === `Вы` ? colorYourColumn : getColorTheirColumnHSL();
-    ctx.fillRect(xPosition + gapColumn + (widthColumn + gapColumn) * i, yPosition + cloudHeight - 30 - heightColumns[i], widthColumn, heightColumns[i]);
+    renderText(ctx, namePlayers[i], xPosition + GAP_COLUMN + (WIDTH_COLUMN + GAP_COLUMN) * i, yPosition + CLOUD_HEIGHT - playerNameMarginBottom);
+    renderText(ctx, Math.round(timePlayers[i]), xPosition + GAP_COLUMN + (WIDTH_COLUMN + GAP_COLUMN) * i, yPosition + CLOUD_HEIGHT - playerColumnMarginBottom - heightColumns[i] - playerPointsMarginBottom);
+    ctx.fillStyle = namePlayers[i] === YOUR_NICKNAME ? COLOR_YOUR_COLUMN : getColorTheirColumnHSL();
+    ctx.fillRect(xPosition + GAP_COLUMN + (WIDTH_COLUMN + GAP_COLUMN) * i, yPosition + CLOUD_HEIGHT - playerColumnMarginBottom - heightColumns[i], WIDTH_COLUMN, heightColumns[i]);
   }
 };
 
 window.renderStatistics = function (ctx, namePlayers, timePlayers) {
-  renderCloud(ctx, xStartCloud, yStartCloud, colorMainCloud, colorShadowCloud);
-  ctx.fillStyle = `#000`;
-  ctx.font = `16px PT Mono`;
-  ctx.fillText(`Ура вы победили!`, xStartCloud + 60, yStartCloud + 20);
-  ctx.fillText(`Список результатов:`, xStartCloud + 60, yStartCloud + 45);
-  renderColumn(ctx, xStartCloud, yStartCloud, namePlayers, timePlayers);
+  renderCloud(ctx, X_START_CLOUD, Y_START_CLOUD, COLOR_MAIN_CLOUD, COLOR_SHADOW_CLOUD);
+  renderText(ctx, MESSAGE_LINE1, X_START_CLOUD + xOffsetMessage, Y_START_CLOUD + yOffsetMessage);
+  renderText(ctx, MESSAGE_LINE2, X_START_CLOUD + xOffsetMessage, Y_START_CLOUD + yOffsetMessage + lineHeightMessage);
+  renderColumn(ctx, X_START_CLOUD, Y_START_CLOUD, namePlayers, timePlayers);
 };
