@@ -2,27 +2,26 @@
 
 const CLOUD_WIDTH = 420;
 const CLOUD_HEIGHT = 270;
-const X_START_CLOUD = 100;
-const Y_START_CLOUD = 10;
-const COLOR_MAIN_CLOUD = `#ffffff`;
-const COLOR_SHADOW_CLOUD = `rgba(0, 0, 0, 0.7)`;
+const CLOUD_START_X = 100;
+const CLOUD_START_Y = 10;
+const CLOUD_COLOR_MAIN = `#ffffff`;
+const CLOUD_COLOR_SHADOW = `rgba(0, 0, 0, 0.7)`;
 const SHADOW_OFFSET_X = 10;
 const SHADOW_OFFSET_Y = 10;
-const MAX_HEIGHT_GRAPH = 150;
-const WIDTH_COLUMN = 40;
-const GAP_COLUMN = 50;
-const COLOR_YOUR_COLUMN = `rgba(255, 0, 0, 1)`;
+const COLUMN_HEIGHT_MAX = 150;
+const COLUMN_WIDTH = 40;
+const COLUMN_GAP = 50;
+const COLUMN_YOUR_COLOR = `rgba(255, 0, 0, 1)`;
 const YOUR_NICKNAME = `Вы`;
 const MESSAGE_LINE1 = `Ура вы победили!`;
 const MESSAGE_LINE2 = `Список результатов:`;
-const xOffsetMessage = 60;
-const yOffsetMessage = 20;
-const FONT_SIZE_MESSAGE = 16;
-const lineHeightMessage = FONT_SIZE_MESSAGE * 1.2;
-const playerNameMarginBottom = 10;
-const playerPointsMarginBottom = 10;
-const playerColumnMarginBottom = playerNameMarginBottom + FONT_SIZE_MESSAGE + 5;
-
+const MESSAGE_OFFSET_X = 60;
+const MESSAGE_OFFSET_Y = 20;
+const MESSAGE_FONT_SIZE = 16;
+const MESSAGE_LINE_HEIGHT = MESSAGE_FONT_SIZE * 1.2;
+const PLAYER_NAME_MARGIN_BOTTOM = 10;
+const PLAYER_POINTS_MARGIN_BOTTOM = 10;
+const PLAYER_COLUMN_MARGIN_BOTTOM = 10;
 
 const getColorTheirColumnHSL = function () {
   const hue = `240`;
@@ -32,41 +31,47 @@ const getColorTheirColumnHSL = function () {
   return hsl;
 };
 
-const renderCloud = function (ctx, xPosition, yPosition, colorCloud, colorShadow) {
+const renderCloudWithShadow = function (ctx, xPosition, yPosition, colorCloud, colorShadow) {
   const quantityLayersShadow = 1;
   for (let j = quantityLayersShadow; j >= 0; j--) {
-    let xPositionLayers = [];
-    xPositionLayers[j] = xPosition + SHADOW_OFFSET_X * j;
-    let yPositionLayers = [];
-    yPositionLayers[j] = yPosition + SHADOW_OFFSET_Y * j;
+    let xPositionLayer = xPosition + SHADOW_OFFSET_X * j;
+    let yPositionLayer = yPosition + SHADOW_OFFSET_Y * j;
     ctx.fillStyle = j === 0 ? colorCloud : colorShadow;
-    ctx.fillRect(xPositionLayers[j], yPositionLayers[j], CLOUD_WIDTH, CLOUD_HEIGHT);
+    ctx.fillRect(xPositionLayer, yPositionLayer, CLOUD_WIDTH, CLOUD_HEIGHT);
   }
 };
 
 const renderText = function (ctx, Message, xText, yText) {
   ctx.fillStyle = `#000`;
-  ctx.font = `${FONT_SIZE_MESSAGE}px PT Mono`;
+  ctx.font = `${MESSAGE_FONT_SIZE}px PT Mono`;
   ctx.fillText(Message, xText, yText);
 };
 
 const renderColumn = function (ctx, xPosition, yPosition, namePlayers, timePlayers) {
+  const columnStartX = xPosition + COLUMN_GAP;
+  const columnOffsetX = COLUMN_WIDTH + COLUMN_GAP;
+  const columnStartY = nameStartY - MESSAGE_FONT_SIZE - PLAYER_COLUMN_MARGIN_BOTTOM;
+  const nameStartY = yPosition + CLOUD_HEIGHT - PLAYER_NAME_MARGIN_BOTTOM;
+  const pointsStartY = columnStartY - PLAYER_POINTS_MARGIN_BOTTOM;
   const maxTime = Math.max.apply(null, timePlayers);
-  const coefficientRecalcHeight = MAX_HEIGHT_GRAPH / maxTime;
-  const heightColumns = timePlayers.map(function (timePlayer) {
+  const coefficientRecalcHeight = COLUMN_HEIGHT_MAX / maxTime;
+  const columnsHeight = timePlayers.map(function (timePlayer) {
     return Math.round(timePlayer * coefficientRecalcHeight);
   });
   for (let i = 0; i < namePlayers.length; i++) {
-    renderText(ctx, namePlayers[i], xPosition + GAP_COLUMN + (WIDTH_COLUMN + GAP_COLUMN) * i, yPosition + CLOUD_HEIGHT - playerNameMarginBottom);
-    renderText(ctx, Math.round(timePlayers[i]), xPosition + GAP_COLUMN + (WIDTH_COLUMN + GAP_COLUMN) * i, yPosition + CLOUD_HEIGHT - playerColumnMarginBottom - heightColumns[i] - playerPointsMarginBottom);
-    ctx.fillStyle = namePlayers[i] === YOUR_NICKNAME ? COLOR_YOUR_COLUMN : getColorTheirColumnHSL();
-    ctx.fillRect(xPosition + GAP_COLUMN + (WIDTH_COLUMN + GAP_COLUMN) * i, yPosition + CLOUD_HEIGHT - playerColumnMarginBottom - heightColumns[i], WIDTH_COLUMN, heightColumns[i]);
+    const columnPositionX = columnStartX + columnOffsetX * i;
+    renderText(ctx, namePlayers[i], columnPositionX, nameStartY);
+    renderText(ctx, Math.round(timePlayers[i]), columnPositionX, pointsStartY - columnsHeight[i]);
+    ctx.fillStyle = namePlayers[i] === YOUR_NICKNAME ? COLUMN_YOUR_COLOR : getColorTheirColumnHSL();
+    ctx.fillRect(columnPositionX, columnStartY - columnsHeight[i], COLUMN_WIDTH, columnsHeight[i]);
   }
 };
 
 window.renderStatistics = function (ctx, namePlayers, timePlayers) {
-  renderCloud(ctx, X_START_CLOUD, Y_START_CLOUD, COLOR_MAIN_CLOUD, COLOR_SHADOW_CLOUD);
-  renderText(ctx, MESSAGE_LINE1, X_START_CLOUD + xOffsetMessage, Y_START_CLOUD + yOffsetMessage);
-  renderText(ctx, MESSAGE_LINE2, X_START_CLOUD + xOffsetMessage, Y_START_CLOUD + yOffsetMessage + lineHeightMessage);
-  renderColumn(ctx, X_START_CLOUD, Y_START_CLOUD, namePlayers, timePlayers);
+  const messageStartX = CLOUD_START_X + MESSAGE_OFFSET_X;
+  const messageStartY = CLOUD_START_Y + MESSAGE_OFFSET_Y;
+  renderCloudWithShadow(ctx, CLOUD_START_X, CLOUD_START_Y, CLOUD_COLOR_MAIN, CLOUD_COLOR_SHADOW);
+  renderText(ctx, MESSAGE_LINE1, messageStartX, messageStartY);
+  renderText(ctx, MESSAGE_LINE2, messageStartX, messageStartY + MESSAGE_LINE_HEIGHT);
+  renderColumn(ctx, CLOUD_START_X, CLOUD_START_Y, namePlayers, timePlayers);
 };
