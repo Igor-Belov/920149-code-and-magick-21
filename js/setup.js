@@ -77,11 +77,14 @@ const getGenerationWizardFromTemplate = function (someWizard) {
   return wizardElement;
 };
 
-const fragment = document.createDocumentFragment();
-createSomeWizards();
-for (let i = 0; i < QUANITY_WIZARDS; i++) {
-  fragment.appendChild(getGenerationWizardFromTemplate(someWizards[i]));
-}
-similarListElement.appendChild(fragment);
-similarList.classList.remove(`hidden`);
+const createWizardInDOM = function () {
+  const fragment = document.createDocumentFragment();
+  createSomeWizards();
+  for (let i = 0; i < QUANITY_WIZARDS; i++) {
+    fragment.appendChild(getGenerationWizardFromTemplate(someWizards[i]));
+  }
+  similarListElement.appendChild(fragment);
+  similarList.classList.remove(`hidden`);
+};
 
+createWizardInDOM();
