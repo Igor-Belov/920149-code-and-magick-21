@@ -72,8 +72,8 @@ const createSomeWizards = function () {
 const getGenerationWizardFromTemplate = function (someWizard) {
   let wizardElement = similarWizardTemplate.cloneNode(true);
   wizardElement.querySelector(`.setup-similar-label`).textContent = someWizard.name;
-  wizardElement.querySelector(`.wizard-coat`).setAttribute(`fill`, someWizard.coatColor);
-  wizardElement.querySelector(`.wizard-eyes`).setAttribute(`fill`, someWizard.eyesColor);
+  wizardElement.querySelector(`.wizard-coat`).style.fill = someWizard.coatColor;
+  wizardElement.querySelector(`.wizard-eyes`).style.fill = someWizard.eyesColor;
   return wizardElement;
 };
 
