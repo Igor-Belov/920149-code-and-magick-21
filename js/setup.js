@@ -54,22 +54,22 @@ const getArrayRandElement = function (array) {
 const getFullNameWizard = function () {
   const firstName = getArrayRandElement(FIRST_NAMES);
   const lastName = getArrayRandElement(LAST_NAMES);
-  const nameArray = [firstName, lastName];
-  return getArrayRandElement(nameArray) === firstName ? firstName + ` ` + lastName : lastName + ` ` + firstName;
+  return getArrayRandElement([true, false]) ? firstName + ` ` + lastName : lastName + ` ` + firstName;
 };
 
-let someWizards = [];
-const createSomeWizards = function () {
-  for (let i = 0; i < QUANITY_WIZARDS; i++) {
+const getCreateSomeWizards = function (quanityWizards) {
+  let wizards = [];
+  for (let i = 0; i < quanityWizards; i++) {
     let wizard = {};
     wizard.name = getFullNameWizard();
     wizard.coatColor = getArrayRandElement(COATS_COLORS);
     wizard.eyesColor = getArrayRandElement(EYES_COLORS);
-    someWizards[i] = wizard;
+    wizards[i] = wizard;
   }
+  return wizards;
 };
 
-const getGenerationWizardFromTemplate = function (someWizard) {
+const getWizardElement = function (someWizard) {
   let wizardElement = similarWizardTemplate.cloneNode(true);
   wizardElement.querySelector(`.setup-similar-label`).textContent = someWizard.name;
   wizardElement.querySelector(`.wizard-coat`).style.fill = someWizard.coatColor;
@@ -77,14 +77,15 @@ const getGenerationWizardFromTemplate = function (someWizard) {
   return wizardElement;
 };
 
-const createWizardInDOM = function () {
+const createWizardInDOM = function (quanityWizards) {
   const fragment = document.createDocumentFragment();
-  createSomeWizards();
-  for (let i = 0; i < QUANITY_WIZARDS; i++) {
-    fragment.appendChild(getGenerationWizardFromTemplate(someWizards[i]));
+  const someWizards = getCreateSomeWizards(quanityWizards);
+  for (let i = 0; i < quanityWizards; i++) {
+    fragment.appendChild(getWizardElement(someWizards[i]));
   }
   similarListElement.appendChild(fragment);
   similarList.classList.remove(`hidden`);
+  someWizards = null;
 };
 
-createWizardInDOM();
+createWizardInDOM(QUANITY_WIZARDS);
